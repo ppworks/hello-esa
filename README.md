@@ -11,6 +11,10 @@
 bundle exec ruby ./hello_esa.rb <ACCESS_TOKEN> <YOUR_TEAM> <JSON_FILE_PATH>
 ```
 
+## Create esa.io user
+
+* https://esa.io/signin
+
 ## Map Qiita:Team user to esa user
 
 ```
