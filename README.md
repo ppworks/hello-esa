@@ -1,4 +1,6 @@
-## Hello esa(Good-bye Qiita:Team)
+## Hello esa(good-bye Qiita:Team)
+
+`(\( ⁰⊖⁰)/)`
 
 * エクスポートを開始する https://your-team.qiita.com/admin
 * Generate new token https://your-team.esa.io/user/tokens/new
