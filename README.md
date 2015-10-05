@@ -20,3 +20,9 @@ bundle exec ruby ./hello_esa.rb <ACCESS_TOKEN> <YOUR_TEAM> <JSON_FILE_PATH>
 ```
 bundle exec ruby ./map_user.rb <ACCESS_TOKEN> <YOUR_TEAM> <QIITA_TEAM_USER> <ESA_USER>
 ```
+
+## Image file list
+
+```
+bundle exec ruby ./search_files.rb <YOUR_QIITA_TEAM> <JSON_FILE_PATH>
+``
