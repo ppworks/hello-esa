@@ -25,13 +25,13 @@ class Importer
   def import!(dry_run: true, start_index: 0)
     items['articles'].sort_by{ |item| item['updated_at'] }.each.with_index do |item, index|
       next unless index >= start_index
-      next if 0 < index # debug
 
       params = {
         name:     item['title'],
-        category: "Imports/Qiita",
-        tags:     item['tags'].map{ |tag| tag['name'].gsub('/', '-') },
+        category: "インポート/Qiita",
+        tags:     item['tags'].map{ |tag| tag['name'].gsub('/', '-') }.map{ |name| "qiita-#{name}" },
         body_md:  <<-BODY_MD,
+Original URL: #{item['url']}
 Original created at:#{item['created_at']}
 Qiita:Team:User:#{item['user']['id']}
 
@@ -49,9 +49,10 @@ BODY_MD
         next
       end
 
-      print "[#{Time.now}] index[#{index}] #{item['title']} => "
+      puts "[#{Time.now}] index[#{index}] #{item['title']} => "
 
       response_body = wrap_response { client.create_post(params) }
+      puts "imported: #{item['url']} to #{response_body['url']}"
 
       item['comments'].each do |comment|
         comment_params = {
