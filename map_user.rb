@@ -32,10 +32,6 @@ class UserConverter
     # comments
     posts = all_posts('comment')
     posts.each do |post|
-      wrap_response { @client.update_post(post['number'], created_by: @esa_user)}['full_name']
-    end
-
-    posts.each do |post|
       comments = all_comments(post['number'])
 
       comments.each do |comment|
