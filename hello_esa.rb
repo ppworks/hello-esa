@@ -8,6 +8,7 @@ require 'pry'
 access_token = ARGV[0]
 team_name = ARGV[1]
 file_path = ARGV[2]
+image_files_path = ARGV[3]
 
 client = Esa::Client.new(
   access_token: access_token,
@@ -17,14 +18,25 @@ client = Esa::Client.new(
 class Importer
   attr_accessor :client, :items
 
-  def initialize(client, file_path)
+  def initialize(client, file_path, image_files_path)
     @client = client
     @items  = JSON.parse(File.read(file_path))
+    @images = {}
+    File.open(image_files_path) do |f|
+      mappings = f.gets.split(' ')
+      @images[mappings[0]] = mappings[1]
+    end
   end
 
   def import!(dry_run: true, start_index: 0)
     items['articles'].sort_by{ |item| item['updated_at'] }.each.with_index do |item, index|
       next unless index >= start_index
+
+      @images.keys.each do |image|
+        if item['body'].match(image)
+          item['body'] = item['body'].gsub(image, @images[image])
+        end
+      end
 
       params = {
         name:     item['title'],
@@ -106,6 +118,6 @@ class Collection
   end
 end
 
-importer = Importer.new(client, file_path)
+importer = Importer.new(client, file_path, image_files_path)
 # dry_run: trueで確認後に dry_run: falseで実際にimportを実行
 importer.import!(dry_run: false, start_index: 0)
