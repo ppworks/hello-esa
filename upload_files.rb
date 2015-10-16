@@ -1,6 +1,7 @@
 require 'esa'
 require 'json'
 require 'pry'
+require './lib/retryable'
 
 access_token = ARGV[0]
 team_name = ARGV[1]
@@ -13,6 +14,7 @@ client = Esa::Client.new(
 )
 
 class ImageUploader
+  include Retryable
   attr_accessor :client, :files, :qiita_team_cookie
 
   def initialize(client, file_path, qiita_team_cookie)
@@ -28,32 +30,6 @@ class ImageUploader
 
       puts "#{file} #{esa_url}"
     end
-  end
-
-  def wrap_response(&block)
-    response = block.call
-
-    case response.status
-    when 200
-      response.body
-    when 429
-      retry_after = (response.headers['Retry-After'] || 20 * 60).to_i
-      puts "rate limit exceeded: will retry after #{retry_after} seconds."
-      wait_for(retry_after)
-      # retry
-      wrap_response &block
-    else
-      puts "failure with status: #{response.status}"
-      exit 1
-    end
-  end
-
-  def wait_for(seconds)
-    (seconds / 10).times do
-      print '.'
-      sleep 10
-    end
-    puts
   end
 end
 

@@ -1,5 +1,7 @@
 require 'esa'
 require 'pry'
+require './lib/retryable'
+require './lib/collection'
 
 access_token = ARGV[0]
 team_name = ARGV[1]
@@ -12,6 +14,7 @@ client = Esa::Client.new(
 )
 
 class UserConverter
+  module Retryable
   CONVERT_KEY_PREFIX = ARGV[4] || "Qiita:Team:User:"
 
   def initialize(client, qiita_team_user, esa_user)
@@ -77,42 +80,6 @@ class UserConverter
     end
 
     collection.data
-  end
-
-  def wrap_response(&block)
-    response = block.call
-
-    case response.status
-    when 200
-      response.body
-    when 429
-      retry_after = (response.headers['Retry-After'] || 20 * 60).to_i
-      puts "rate limit exceeded: will retry after #{retry_after} seconds."
-      wait_for(retry_after)
-      # retry
-      wrap_response &block
-    else
-      puts "failure with status: #{response.status}"
-      exit 1
-    end
-  end
-
-  def wait_for(seconds)
-    (seconds / 10).times do
-      print '.'
-      sleep 10
-    end
-    puts
-  end
-end
-
-class Collection
-  attr_accessor :data, :page, :per
-
-  def initialize
-    @data = []
-    @page = 1
-    @per  = 100
   end
 end
 

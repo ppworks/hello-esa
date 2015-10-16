@@ -2,6 +2,8 @@ require 'esa'
 require 'json'
 require 'pp'
 require 'pry'
+require './lib/retryable'
+require './lib/collection'
 
 access_token = ARGV[0]
 team_name = ARGV[1]
@@ -14,6 +16,7 @@ client = Esa::Client.new(
 )
 
 class Importer
+  include Retryable
   attr_accessor :client, :items
 
   def initialize(client, file_path, image_files_path)
@@ -77,42 +80,6 @@ BODY_MD
         wrap_response { client.create_comment(response_body['number'], comment_params) }
       end
     end
-  end
-
-  def wrap_response(&block)
-    response = block.call
-
-    case response.status
-    when 200, 201
-      response.body
-    when 429
-      retry_after = (response.headers['Retry-After'] || 20 * 60).to_i
-      puts "rate limit exceeded: will retry after #{retry_after} seconds."
-      wait_for(retry_after)
-      # retry
-      wrap_response &block
-    else
-      puts "failure with status: #{response.status}"
-      exit 1
-    end
-  end
-
-  def wait_for(seconds)
-    (seconds / 10).times do
-      print '.'
-      sleep 10
-    end
-    puts
-  end
-end
-
-class Collection
-  attr_accessor :data, :page, :per
-
-  def initialize
-    @data = []
-    @page = 1
-    @per  = 100
   end
 end
 
