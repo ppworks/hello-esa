@@ -14,7 +14,7 @@ bundle exec ruby ./search_files.rb <YOUR_QIITA_TEAM> <JSON_FILE_PATH>
 ## Upload file
 
 ```
-bundle exec ruby ./upload_files.rb <ACCESS_TOKEN> <YOUR_TEAM> <IMAGE_FILE_LIST> secure_token=xxxxxx;user_session_key=yyyyy
+bundle exec ruby ./upload_files.rb <ACCESS_TOKEN> <YOUR_TEAM> <IMAGE_FILE_LIST> "secure_token=xxxxxx;user_session_key=yyyyy"
 ```
 
 ## Import Qiita:Team articles
