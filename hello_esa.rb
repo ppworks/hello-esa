@@ -1,5 +1,3 @@
-# bundle exec ruby ./hello_esa.rb access_token team_name ./qiita-team.json
-
 require 'esa'
 require 'json'
 require 'pp'

@@ -1,5 +1,3 @@
-# bundle exec ruby ./map_user.rb access_token team_name koshikawanaoto ppworks
-
 require 'esa'
 require 'pry'
 
