@@ -24,8 +24,10 @@ class Importer
     @items  = JSON.parse(File.read(file_path))
     @images = {}
     File.open(image_files_path) do |f|
-      mappings = f.gets.split(' ')
-      @images[mappings[0]] = mappings[1]
+      while line = f.gets
+        mappings = line.split(' ')
+        @images[mappings[0]] = mappings[1]
+      end
     end
   end
 
