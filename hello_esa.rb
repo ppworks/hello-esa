@@ -43,7 +43,7 @@ class Importer
 
       params = {
         name:     item['title'],
-        category: "インポート/Qiita",
+        category: "Imported/Qiita",
         tags:     item['tags'].map{ |tag| tag['name'].gsub('/', '-') }.map{ |name| "qiita-#{name}" },
         body_md:  <<-BODY_MD,
 Original URL: #{item['url']}
