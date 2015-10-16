@@ -1,9 +1,9 @@
-# bundle exec ruby ./hello_esa.rb access_token team_name ./qiita-team.json
-
 require 'esa'
 require 'json'
 require 'pp'
 require 'pry'
+require './lib/retryable'
+require './lib/collection'
 
 access_token = ARGV[0]
 team_name = ARGV[1]
@@ -16,6 +16,7 @@ client = Esa::Client.new(
 )
 
 class Importer
+  include Retryable
   attr_accessor :client, :items
 
   def initialize(client, file_path, image_files_path)
@@ -23,8 +24,10 @@ class Importer
     @items  = JSON.parse(File.read(file_path))
     @images = {}
     File.open(image_files_path) do |f|
-      mappings = f.gets.split(' ')
-      @images[mappings[0]] = mappings[1]
+      while line = f.gets
+        mappings = line.split(' ')
+        @images[mappings[0]] = mappings[1]
+      end
     end
   end
 
@@ -40,7 +43,7 @@ class Importer
 
       params = {
         name:     item['title'],
-        category: "インポート/Qiita",
+        category: "Imported/Qiita",
         tags:     item['tags'].map{ |tag| tag['name'].gsub('/', '-') }.map{ |name| "qiita-#{name}" },
         body_md:  <<-BODY_MD,
 Original URL: #{item['url']}
@@ -79,42 +82,6 @@ BODY_MD
         wrap_response { client.create_comment(response_body['number'], comment_params) }
       end
     end
-  end
-
-  def wrap_response(&block)
-    response = block.call
-
-    case response.status
-    when 200, 201
-      response.body
-    when 429
-      retry_after = (response.headers['Retry-After'] || 20 * 60).to_i
-      puts "rate limit exceeded: will retry after #{retry_after} seconds."
-      wait_for(retry_after)
-      # retry
-      wrap_response &block
-    else
-      puts "failure with status: #{response.status}"
-      exit 1
-    end
-  end
-
-  def wait_for(seconds)
-    (seconds / 10).times do
-      print '.'
-      sleep 10
-    end
-    puts
-  end
-end
-
-class Collection
-  attr_accessor :data, :page, :per
-
-  def initialize
-    @data = []
-    @page = 1
-    @per  = 100
   end
 end
 
