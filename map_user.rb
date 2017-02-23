@@ -14,7 +14,7 @@ client = Esa::Client.new(
 )
 
 class UserConverter
-  module Retryable
+  include Retryable
   CONVERT_KEY_PREFIX = ARGV[4] || "Qiita:Team:User:"
 
   def initialize(client, qiita_team_user, esa_user)
